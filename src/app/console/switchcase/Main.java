@@ -1,4 +1,6 @@
-package app.console;
+package app.console.switchcase;
+
+import app.console.SerialComm;
 import gnu.io.CommPortIdentifier;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -19,6 +21,7 @@ public class Main {
         SerialComm comm = new SerialComm();
         Scanner sc = new Scanner(System.in);
 
+        System.out.println("Doctor Air console PC application v.1.0");
         System.out.println("Available COM ports: ");
 
         Enumeration ports = CommPortIdentifier.getPortIdentifiers();
@@ -28,7 +31,6 @@ public class Main {
         }
 
         try {
-
             System.out.print("Select device COM port: ");
             String com = sc.next();
 
@@ -50,7 +52,7 @@ public class Main {
                         break;
                     case "update":
                         comm.disconnect();
-                        if (uploadBin("m328", com, "9600", "update.ino.standard.hex") == 0)
+                        if (uploadBin(com, "update.ino.standard.hex") == 0)
                             System.out.println("    Successful update");
                         else
                             System.out.println("    Update error!");
@@ -116,13 +118,12 @@ public class Main {
 
     }
 
-    static int uploadBin(String type, String port, String baud, String hex_path) {
+    static int uploadBin(String port, String hex_path) {
         Runtime r = Runtime.getRuntime();
         Process p = null;
 
         try {
-            String command = "avrdude.exe -C avrdude.conf -p " + type +
-                    " -c wiring -P " +  port + " -b " + baud + " -D -U flash:w:\"" + hex_path + "\":i";
+            String command = "avrdude.exe -C avrdude.conf -p m328p -c arduino -P " +  port + " -b 115200 -D -U flash:w:\"" + hex_path + "\":i";
             System.out.println(command);
             p = r.exec(command);
             p.waitFor();

@@ -1,6 +1,8 @@
 package app.console;
 
-import gnu.io.*;
+import gnu.io.CommPort;
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,10 +16,11 @@ public class SerialComm {
     CommPort commPort = null;
     InputStream in = null;
     OutputStream out = null;
+    String port = null;
 
     private byte[] buffer = new byte[1024];
 
-    void connect ( String portName ) throws Exception
+    public void connect ( String portName ) throws Exception
     {
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
         if ( portIdentifier.isCurrentlyOwned() )
@@ -27,6 +30,7 @@ public class SerialComm {
         else
         {
             commPort = portIdentifier.open(this.getClass().getName(),2000);
+            port = portName;
 
             if ( commPort instanceof SerialPort)
             {
@@ -44,7 +48,7 @@ public class SerialComm {
         }
     }
 
-    void disconnect() {
+    public void disconnect() {
         try {
             in.close();
             out.close();
@@ -54,7 +58,7 @@ public class SerialComm {
         }
     }
 
-    void send(String s) {
+    public void send(String s) {
         try {
             out.write(s.getBytes());
         } catch (IOException e) {
@@ -62,7 +66,7 @@ public class SerialComm {
         }
     }
 
-    String receive() {
+    public String receive() {
         int data;
 
         try
@@ -89,12 +93,16 @@ public class SerialComm {
 
     }
 
-    void waitData() {
+    public void waitData() {
         try {
             while ( in.available() == 0 );
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getPortName() {
+        return port;
     }
 
 }
