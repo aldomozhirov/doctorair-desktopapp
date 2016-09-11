@@ -22,7 +22,7 @@ public class Commander {
     @CommandDef(desc = "Prints the current state of lamp and cooler", params = {""})
     public static void state() {
 
-        comm.send("state");
+        comm.send("SST");
         comm.waitData();
         String json = comm.receive();
 
@@ -50,6 +50,9 @@ public class Commander {
             else
                 throw new ParseException(-1);
 
+            System.out.println("    Lamp count: " + lamp.get("count"));
+            System.out.println("    Mode: " + root.get("mode"));
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -59,7 +62,7 @@ public class Commander {
     @CommandDef(desc = "Prints the current on board sensor values", params = {""})
     public static void sensors() {
 
-        comm.send("sensors");
+        comm.send("SEN");
         comm.waitData();
         String json = comm.receive();
 
@@ -81,7 +84,7 @@ public class Commander {
         Process p = null;
 
         try {
-            String command = "avrdude.exe -C avrdude.conf -p m328p -c arduino -P "+ comm.getPortName() + " -b 115200 -D -U flash:w:\"update.ino.standard.hex\":i";
+            String command = "avrdude.exe -C avrdude.conf -p m2560 -c wiring -P "+ comm.getPortName() + " -b 115200 -D -U flash:w:\"doctorair-firmware-ver-1.1.hex\":i";
             comm.disconnect();
             p = r.exec(command);
             p.waitFor();
@@ -113,6 +116,33 @@ public class Commander {
     public static void exit() {
         comm.disconnect();
         System.exit(0);
+    }
+
+    @CommandDef(desc = "Prints firmware version of device", params = {""})
+    public static void version() {
+        comm.send("VER");
+        comm.waitData();
+        System.out.println("    Device firmware version: " + comm.receive());
+    }
+
+    @CommandDef(desc = "Prints all device logs starting from launching the system", params = {""})
+    public static void log() {
+        comm.send("LOG");
+        comm.waitData();
+        System.out.println(comm.receive());
+    }
+
+    @CommandDef(desc = "Resets the counter of lamp", params = {""})
+    public static void resetlamp() {
+        comm.send("RLC");
+    }
+
+    @CommandDef(desc = "Connect to inputed wifi access point", params = {"ssid", "password"})
+    public static void wifiap(String ssid, String password)
+    {
+        comm.send("WAP " + "\"" + ssid + "\" \"" + password + "\"");
+        comm.waitData();
+        System.out.println(comm.receive());
     }
 
 }

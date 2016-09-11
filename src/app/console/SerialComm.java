@@ -35,7 +35,7 @@ public class SerialComm {
             if ( commPort instanceof SerialPort)
             {
                 SerialPort serialPort = (SerialPort) commPort;
-                serialPort.setSerialPortParams(9600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
+                serialPort.setSerialPortParams(57600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
 
                 in = serialPort.getInputStream();
                 out = serialPort.getOutputStream();
@@ -74,9 +74,10 @@ public class SerialComm {
             int len = 0;
             while ( ( data = in.read()) > -1 )
             {
-                if ( data == '\n' ) {
+                /*if ( data == '\n' ) {
                     break;
-                }
+                }*/
+
                 buffer[len++] = (byte) data;
             }
 

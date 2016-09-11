@@ -5,8 +5,7 @@ import com.sun.org.apache.xpath.internal.SourceTree;
 import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
 
-import java.util.Enumeration;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by Alexey on 18.07.2016.
@@ -15,6 +14,7 @@ public class Main {
 
     public static void main(String[] args) {
 
+        System.setProperty("console.encoding","Cp866");
         SerialComm serialcomm = new SerialComm();
         Scanner sc = new Scanner(System.in);
 
@@ -29,7 +29,7 @@ public class Main {
 
         try {
             System.out.print("Select device COM port: ");
-            String com = sc.next();
+            String com = sc.nextLine();
 
             serialcomm.connect(com);
             Commander commander = new Commander(serialcomm);
@@ -37,7 +37,15 @@ public class Main {
             while (true) {
                 System.out.print("Input command: ");
                 try {
-                    Commander.class.getMethod(sc.next()).invoke(commander, new Object[]{});
+                    while (!sc.hasNextLine());
+                    String[] command = sc.nextLine().split(" ");
+                    Class[] paramTypes = new Class[command.length - 1];
+                    String[] paramValues = new String[command.length - 1];
+                    for (int i = 0; i < command.length - 1; i++) {
+                        paramTypes[i] = String.class;
+                        paramValues[i] = command[i + 1];
+                    }
+                    Commander.class.getMethod(command[0], paramTypes).invoke(commander, paramValues);
                 } catch (Exception e) {
                     if (e instanceof NoSuchMethodException) {
                         System.out.println("Invalid command!");
