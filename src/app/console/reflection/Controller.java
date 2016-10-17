@@ -29,8 +29,13 @@ public class Controller {
 
         JSONObject root = null;
 
+        //Sending SST command to connected device (see recirculator communication protocol specification) and waiting for data
+
         comm.send("SST");
         comm.waitData();
+
+        //Parsing received device state information in JSON format
+
         String json = comm.receive();
 
         try {
@@ -50,8 +55,13 @@ public class Controller {
 
         JSONObject root = null;
 
+        //Sending SEN command to connected device (see recirculator communication protocol specification) and waiting for data
+
         comm.send("SEN");
         comm.waitData();
+
+        //Parsing received sensors values in JSON format
+
         String json = comm.receive();
 
         try {
@@ -68,8 +78,14 @@ public class Controller {
      * @return String
      */
     public String getVersion() {
+
+        //Sending VER command to connected device (see recirculator communication protocol specification) and waiting for data
+
         comm.send("VER");
         comm.waitData();
+
+        //Return received device firmware version
+
         return comm.receive();
     }
 
@@ -78,8 +94,14 @@ public class Controller {
      * @return String
      */
     public String getLogs() {
+
+        //Sending LOG command to connected device (see recirculator communication protocol specification) and waiting for data
+
         comm.send("LOG");
         comm.waitData();
+
+        //Return received device firmware version
+
         return comm.receive();
     }
 
@@ -88,6 +110,9 @@ public class Controller {
      * @return boolean
      */
     public boolean resetLampCounter() {
+
+        //Sending RLC command to connected device (see recirculator communication protocol specification)
+
         comm.send("RLC");
         return true;
     }
@@ -99,8 +124,14 @@ public class Controller {
      * @return boolean
      */
     public boolean connectWiFiAP(String ssid, String password) {
+
+        //Sending WAP "ssid" "password" command to connected device (see recirculator communication protocol specification) and waiting for data
+
         comm.send("WAP " + ssid + password);
         comm.waitData();
+
+        //Receive result of connection and return it in boolean format
+
         return comm.receive().compareTo("SUCCESS") == 0;
     }
 
@@ -109,8 +140,14 @@ public class Controller {
      * @return boolean
      */
     public boolean checkConnection() {
+
+        //Sending CON command to connected device (see recirculator communication protocol specification) and waiting for data
+
         comm.send("CON");
         comm.waitData();
+
+        //Receive request result and return boolean true if result is "ONLINE" and false in other cases
+
         return comm.receive() == "ONLINE";
     }
 
@@ -129,14 +166,27 @@ public class Controller {
      */
     public boolean uploadFirmware(String path) throws Exception {
 
+        //Creating new process to launch avrdude
+
         Runtime r = Runtime.getRuntime();
         Process p = null;
 
         String command = "avrdude.exe -C avrdude.conf -p m2560 -c wiring -P "+ comm.getPortName() + " -b 115200 -D -U flash:w:\"" + path +"\":i";
+
+        //Disconnect connected device to make available for avrdude
+
         comm.disconnect();
+
+        //Executing avrdude command to upload firmware to the connected device
+
         p = r.exec(command);
         p.waitFor();
+
+        //Connect device to program back
+
         comm.connect(comm.getPortName());
+
+        //Return result of avrdude process execution
 
         return p.exitValue() == 0;
 
