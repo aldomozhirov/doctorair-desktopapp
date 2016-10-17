@@ -19,6 +19,7 @@ public class Main {
         Scanner sc = new Scanner(System.in);
 
         System.out.println("--- Doctor Air console PC application v.1.1 ---");
+
         System.out.println("Available COM ports: ");
 
         Enumeration ports = CommPortIdentifier.getPortIdentifiers();
@@ -32,7 +33,7 @@ public class Main {
             String com = sc.nextLine();
 
             serialcomm.connect(com);
-            Commander commander = new Commander(serialcomm);
+            Commander commander = new Commander(new Controller(serialcomm));
 
             while (true) {
                 System.out.print("Input command: ");
