@@ -14,11 +14,12 @@ public class Main {
 
     public static void main(String[] args) {
 
-        System.setProperty("console.encoding","Cp866");
         SerialComm serialcomm = new SerialComm();
         Scanner sc = new Scanner(System.in);
 
         System.out.println("--- Doctor Air console PC application v.1.1 ---");
+
+        //Ask user to select COM port of connected device from the list
 
         System.out.println("Available COM ports: ");
 
@@ -32,20 +33,28 @@ public class Main {
             System.out.print("Select device COM port: ");
             String com = sc.nextLine();
 
+            //Connection attempt to specified com port
+
             serialcomm.connect(com);
             Commander commander = new Commander(new Controller(serialcomm));
+
+            //Command shell loop (work until "exit" command input)
 
             while (true) {
                 System.out.print("Input command: ");
                 try {
+                    //Wait for input
                     while (!sc.hasNextLine());
+                    //Split command on it's name and parameters
                     String[] command = sc.nextLine().split(" ");
                     Class[] paramTypes = new Class[command.length - 1];
                     String[] paramValues = new String[command.length - 1];
+                    //Store command parameters
                     for (int i = 0; i < command.length - 1; i++) {
                         paramTypes[i] = String.class;
                         paramValues[i] = command[i + 1];
                     }
+                    //Specified command execution
                     Commander.class.getMethod(command[0], paramTypes).invoke(commander, paramValues);
                 } catch (Exception e) {
                     if (e instanceof NoSuchMethodException) {

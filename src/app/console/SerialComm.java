@@ -20,22 +20,44 @@ public class SerialComm {
 
     private byte[] buffer = new byte[1024];
 
+    /**
+     * Create connection with device by specified port name
+     * @param portName
+     * @throws Exception
+     */
     public void connect ( String portName ) throws Exception
     {
+        //Get communication port id by specified port name
+
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
+
+        //Check if specified port is busy
+
         if ( portIdentifier.isCurrentlyOwned() )
         {
             System.out.println("Error: Port is currently in use");
         }
         else
         {
+            //Open port communication
+
             commPort = portIdentifier.open(this.getClass().getName(),2000);
+
+            //Store connected port name in String format
+
             port = portName;
 
             if ( commPort instanceof SerialPort)
             {
+                //Convert CommPort to SerialPort
+
                 SerialPort serialPort = (SerialPort) commPort;
+
+                //Set serial port parameters
+
                 serialPort.setSerialPortParams(57600,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
+
+                //Get port communication input/output streams
 
                 in = serialPort.getInputStream();
                 out = serialPort.getOutputStream();
@@ -48,6 +70,9 @@ public class SerialComm {
         }
     }
 
+    /**
+     * Close current device connection
+     */
     public void disconnect() {
         try {
             in.close();
@@ -58,14 +83,22 @@ public class SerialComm {
         }
     }
 
-    public void send(String s) {
+    /**
+     * Send specified message to the connected device
+     * @param message
+     */
+    public void send(String message) {
         try {
-            out.write(s.getBytes());
+            out.write(message.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Receive input data stream and return it in String format
+     * @return
+     */
     public String receive() {
         int data;
 
@@ -94,6 +127,9 @@ public class SerialComm {
 
     }
 
+    /**
+     * Wait for data input stream
+     */
     public void waitData() {
         try {
             while ( in.available() == 0 );
@@ -102,6 +138,10 @@ public class SerialComm {
         }
     }
 
+    /**
+     * Get connected port name in String format
+     * @return
+     */
     public String getPortName() {
         return port;
     }
